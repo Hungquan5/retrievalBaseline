@@ -115,6 +115,76 @@ graph TD
 ```
 
 ---
+## 4. Run Milvus with Docker Compose
+This repo includes a ready-to-use **Docker Compose** file to start Milvus and its dependencies.  
+If you haven't installed Docker yet, install **Docker Engine** and **Docker Compose v2** on your machine.
+
+### What this Compose file starts
+- **etcd** (`quay.io/coreos/etcd:v3.5.18`)
+- **environment**
+- **volumes**
+- **healthcheck**
+- **minio** (`minio/minio:RELEASE.2024-12-18T13-15-44Z`)
+- **ports**
+- **standalone** (`milvusdb/milvus:v2.6.2`)
+- **security_opt**
+- **depends_on**
+- **default**
+### Quick start
+
+From the repository folder that contains `docker-compose.yml`:
+
+```bash
+# 1) Start in the background
+docker compose up -d
+
+# 2) Watch status
+docker compose ps
+
+# 3) Tail logs (Ctrl+C to stop tailing)
+docker compose logs -f
+```
+
+When everything is healthy, Milvus should accept connections on **port 19530** (gRPC) and **port 9091/9092** (HTTP REST, if exposed).
+
+### Verify the connection (Python)
+
+```python
+from pymilvus import connections, utility
+connections.connect("default", host="127.0.0.1", port="19530")
+print("Connected:", utility.get_server_version())
+```
+
+> Tip: If you run Milvus in the cloud or a remote server, replace `127.0.0.1` with the server IP/hostname and make sure the port is open in your firewall.
+
+### Stop & clean up
+
+```bash
+# stop containers but keep data
+docker compose stop
+
+# restart containers
+docker compose start
+
+# stop and remove containers (data persists)
+docker compose down
+
+# stop and remove containers + **delete all volumes/data**
+docker compose down -v
+```
+
+### Common issues & fixes
+
+- **Permission denied on volumes**: On Linux, make sure the directory you bind-mount is writable by Docker. You can `chown -R 1000:1000 <data_dir>` if containers run as uid 1000, or use `:z` on SELinux systems.
+- **Ports already in use**: Change the left side of the `host:container` port mapping in `docker-compose.yml`, e.g. `19531:19530`.
+- **Low memory**: Milvus standalone typically needs at least **4–8 GB RAM**. Try closing other apps or upgrading memory if OOM occurs.
+- **ARM Macs**: If the image doesn’t support ARM, add `platform: linux/amd64` to the service in `docker-compose.yml`.
+- **Remote access blocked**: Ensure your firewall/security group allows inbound TCP on the Milvus port (default **19530**) from your client.
+
+### Where to go next
+
+- Create collections and insert vectors using our scripts in this repo (see sections above).
+- Learn advanced features (partitions, indexes, query tuning, backup) in the official docs: https://milvus.io/docs
 
 ## Requirements
 
