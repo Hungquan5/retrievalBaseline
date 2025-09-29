@@ -220,14 +220,15 @@ class VectorSearchService:
             text_features = self.clip_model.encode_text(text_inputs)
             return F.normalize(text_features, p=2, dim=-1)
 
-    def log_execution_time(self, func):
+    @staticmethod
+    def log_execution_time(func):
         """Decorator to log function execution time"""
         async def wrapper(*args, **kwargs):
             start_time = time.time()
             result = await func(*args, **kwargs)
             end_time = time.time()
             execution_time = end_time - start_time
-            self.logger.info(f"{func.__name__} executed in {execution_time:.4f} seconds")
+            logging.getLogger(__name__).info(f"{func.__name__} executed in {execution_time:.4f} seconds")
             return result
         return wrapper
 
@@ -255,7 +256,7 @@ class VectorSearchService:
             limit=limit,
             output_fields=['path', 'time', 'frame_id'],
             search_params={
-                "metric_type": "L2",
+                "metric_type": "IP",
                 "params": {
                     "itopk_size": 4096,
                     "search_width": 2,

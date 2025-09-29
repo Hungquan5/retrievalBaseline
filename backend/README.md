@@ -1,15 +1,16 @@
+
 # Vector Search Service
 
-A high-performance FastAPI service for vector similarity search using CLIP and ALIGN models with Milvus database.
+A high-performance FastAPI service for vector similarity search using the CLIP model with Milvus database.
 
 ## Features
 
-- **Dual Model Support**: Uses both OpenAI CLIP and ALIGN models for text encoding
-- **Temporal Queries**: Supports sequential queries with temporal relationship scoring
-- **Real-time Communication**: WebSocket support for live queries
-- **Configurable**: Easy configuration via JSON file or environment variables
-- **High Performance**: Async operations, caching, and vectorized computations
-- **Production Ready**: Comprehensive logging, error handling, and health checks
+* **CLIP Model Support**: Uses OpenAI CLIP for text and image encoding
+* **Temporal Queries**: Supports sequential queries with temporal relationship scoring
+* **Real-time Communication**: WebSocket support for live queries
+* **Configurable**: Easy configuration via JSON file or environment variables
+* **High Performance**: Async operations, caching, and vectorized computations
+* **Production Ready**: Comprehensive logging, error handling, and health checks
 
 ## Installation
 
@@ -52,7 +53,6 @@ export CONFIG_FILE=config.json
 # Model Configuration
 export CLIP_MODEL_NAME="ViT-H-14-378-quickgelu"
 export CLIP_PRETRAINED="dfn5b"
-export ALIGN_MODEL_NAME="kakaobrain/align-base"
 export DEVICE="cuda"
 
 # Database Configuration
@@ -83,11 +83,13 @@ uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ### API Endpoints
 
 #### 1. Health Check
+
 ```bash
 GET /health
 ```
 
 #### 2. Text Query (REST)
+
 ```bash
 POST /TextQuery
 Content-Type: application/json
@@ -99,6 +101,7 @@ Content-Type: application/json
 ```
 
 #### 3. WebSocket Connection
+
 ```javascript
 const ws = new WebSocket('ws://localhost:8000/ws');
 ws.send(JSON.stringify({
@@ -109,41 +112,10 @@ ws.send(JSON.stringify({
 ```
 
 #### 4. Configuration Info
+
 ```bash
 GET /config
 ```
-
-## Key Improvements in Refactored Code
-
-### 1. **Configuration Management**
-- Centralized configuration with JSON file support
-- Environment variable fallbacks
-- Type-safe configuration classes using dataclasses
-
-### 2. **Better Code Organization**
-- Service class encapsulates all functionality
-- Clear separation of concerns
-- Modular design with easy extensibility
-
-### 3. **Comprehensive Documentation**
-- Detailed docstrings for all functions
-- Inline comments explaining complex logic
-- Clear parameter and return type annotations
-
-### 4. **Error Handling & Logging**
-- Structured logging throughout the application
-- Proper exception handling with meaningful messages
-- Health check endpoints for monitoring
-
-### 5. **Performance Optimizations**
-- Maintained original vectorized operations
-- Proper async/await usage
-- LRU caching for expensive operations
-
-### 6. **Production Readiness**
-- Configuration validation
-- Graceful error handling
-- Resource cleanup for WebSocket connections
 
 ## File Structure
 
@@ -158,19 +130,19 @@ project/
 
 ## Configuration Options
 
-| Setting | Description | Default |
-|---------|-------------|---------|
-| `clip_model_name` | CLIP model identifier | ViT-H-14-378-quickgelu |
-| `align_model_name` | ALIGN model identifier | kakaobrain/align-base |
-| `device` | Computing device (cuda/cpu) | cuda |
-| `milvus_host` | Milvus server host | 192.168.20.156 |
-| `collection_name` | Milvus collection name | AIC_2024_1 |
-| `search_limit` | Maximum search results | 3000 |
-| `max_workers` | Thread pool size | 4 |
+| Setting           | Description                 | Default                |
+| ----------------- | --------------------------- | ---------------------- |
+| `clip_model_name` | CLIP model identifier       | ViT-H-14-378-quickgelu |
+| `device`          | Computing device (cuda/cpu) | cuda                   |
+| `milvus_host`     | Milvus server host          | 192.168.20.156         |
+| `collection_name` | Milvus collection name      | AIC\_2024\_1           |
+| `search_limit`    | Maximum search results      | 3000                   |
+| `max_workers`     | Thread pool size            | 4                      |
 
 ## Temporal Query Logic
 
 The service supports temporal queries where:
+
 1. First query finds initial matches
 2. Second query finds subsequent events
 3. Results are reranked based on temporal proximity
@@ -180,11 +152,13 @@ The service supports temporal queries where:
 ## Development
 
 ### Running in Development Mode
+
 ```bash
 uvicorn main:app --reload --log-level debug
 ```
 
 ### Testing
+
 ```bash
 # Test health endpoint
 curl http://localhost:8000/health
@@ -206,6 +180,7 @@ curl -X POST http://localhost:8000/TextQuery \
 ### Logs
 
 Check logs for detailed error information:
+
 ```bash
 # Service logs include execution times and error details
 # Set LOG_LEVEL=DEBUG for verbose logging

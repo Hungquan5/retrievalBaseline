@@ -85,7 +85,7 @@ Your project already includes multiple features that serve as a foundation:
 
 Each subdirectory contains its own `README.md` with detailed instructions:
 
-* [`frontend/`](./frontend/README.md) → React + Vite app for UI and retrieval visualization.
+* [`frontend/`](./frontend/README.md) → HTML + CSS + JAVASCRIPTS for UI and retrieval visualization.
 * [`backend/`](./backend/README.md) → APIs, Milvus integration, and embedding pipeline.
 * [`database/`](./database/README.md) → Milvus schema definitions, scripts, and indexing workflows.
 
@@ -95,19 +95,6 @@ Each subdirectory contains its own `README.md` with detailed instructions:
 
 * Milvus: [https://milvus.io/docs](https://milvus.io/docs)
 * OpenCLIP: [https://github.com/mlfoundations/open\_clip](https://github.com/mlfoundations/open_clip)
-
----
-
-## 🖼️ Assets
-
-All diagrams, architecture illustrations, and UI mockups should be placed under:
-
-```
-./assets/
-```
-
-* Example: `retrieval_system_overview.png` (system architecture).
-* Example: `milvus_pipeline.png` (data → embeddings → database → query).
 
 ---
 

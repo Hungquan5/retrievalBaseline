@@ -7,86 +7,7 @@ This repository provides a pipeline for:
 
 ---
 
-## 1. Keyframe Extraction
-
-**Script:** `extract_keyframes.py`
-
-This script processes a folder of videos, extracts representative keyframes based on cosine similarity of OpenCLIP embeddings, and saves:
-
-* Keyframes as **`.webp` images**
-* Frame-to-time mappings as **CSV files**
-
-### Usage
-
-```bash
-python extract_keyframes.py \
-  --input-folder /path/to/videos \
-  --output-base ./output-keyframes \
-  --clip-threshold 0.93 \
-  --skip-frames 5
-```
-
-### Key Arguments
-
-* `--input-folder`: Root folder containing videos (`.mp4` by default).
-* `--output-base`: Where keyframes and maps will be stored.
-* `--clip-threshold`: Cosine similarity threshold (lower similarity → new keyframe).
-* `--skip-frames`: Process every `(skip_frames + 1)`th frame.
-* `--pattern`: Glob pattern for video files (default: `*.mp4`).
-
-Each processed video produces:
-
-```
-output-keyframes/
-  ├── maps/
-  │   └── video1_map.csv
-  ├── video1/
-  │   └── keyframes/
-  │       ├── keyframe_150.webp
-  │       ├── keyframe_300.webp
-  │       └── ...
-  └── video2/
-      └── keyframes/...
-```
-
----
-
-## 2. Milvus Indexing
-
-**Script:** `milvus_index_keyframes.py`
-
-This script takes the extracted keyframes (`.webp`) and inserts their embeddings into a Milvus collection for fast vector similarity search.
-
-### Features
-
-* Multi-GPU or CPU-only encoding
-* Batch-wise insertion with configurable flush interval
-* Automatic collection creation with HNSW index
-* Option to rebuild index after ingestion for faster queries
-
-### Usage
-
-```bash
-python milvus_index_keyframes.py \
-  --root ./output-keyframes \
-  --collection-name AIC25_fullbatch1 \
-  --recreate \
-  --build-index
-```
-
-### Key Arguments
-
-* `--root`: Root folder containing keyframes.
-* `--collection-name`: Milvus collection name.
-* `--recreate`: Drop and recreate the collection if it exists.
-* `--build-index`: Build HNSW index after insertions.
-* `--batch-size`: Number of keyframes per encoding batch (default: 16).
-* `--flush-interval`: Flush every N inserts (default: 2000).
-* `--workers`: `auto` = use all GPUs, `cpu` = single worker on CPU, or integer for #workers.
-
----
-
-## 3. Database: Milvus
+## 1. Database: Milvus
 
 [Milvus](https://milvus.io/) is a high-performance vector database designed for similarity search.
 In this project, it stores embeddings for keyframe retrieval.
@@ -109,13 +30,13 @@ For advanced Milvus features (e.g., partitioning, hybrid search, scaling, query 
 
 ```mermaid
 graph TD
-    A[Video Files] -->|extract_keyframes.py| B[Keyframe Images + Map CSVs]
-    B -->|milvus_index_keyframes.py| C[Milvus Collection]
+    A[Video Files] -->|get_keyframes.py| B[Keyframe Images + Map CSVs]
+    B -->|upload_database.py| C[Milvus Collection]
     C --> D[Vector Search / Retrieval]
 ```
 
 ---
-## 4. Run Milvus with Docker Compose
+## 2. Run Milvus with Docker Compose
 This repo includes a ready-to-use **Docker Compose** file to start Milvus and its dependencies.  
 If you haven't installed Docker yet, install **Docker Engine** and **Docker Compose v2** on your machine.
 
@@ -172,6 +93,86 @@ docker compose down
 # stop and remove containers + **delete all volumes/data**
 docker compose down -v
 ```
+---
+
+## 3. Keyframe Extraction
+
+**Script:** `get_keyframes.py`
+
+This script processes a folder of videos, extracts representative keyframes based on cosine similarity of OpenCLIP embeddings, and saves:
+
+* Keyframes as **`.webp` images**
+* Frame-to-time mappings as **CSV files**
+
+### Usage
+
+```bash
+python get_keyframes.py \
+  --input-folder /path/to/videos \
+  --output-base ./output-keyframes \
+  --clip-threshold 0.93 \
+  --skip-frames 5
+```
+
+### Key Arguments
+
+* `--input-folder`: Root folder containing videos (`.mp4` by default).
+* `--output-base`: Where keyframes and maps will be stored.
+* `--clip-threshold`: Cosine similarity threshold (lower similarity → new keyframe).
+* `--skip-frames`: Process every `(skip_frames + 1)`th frame.
+* `--pattern`: Glob pattern for video files (default: `*.mp4`).
+
+Each processed video produces:
+
+```
+output-keyframes/
+  ├── maps/
+  │   └── video1_map.csv
+  ├── video1/
+  │   └── keyframes/
+  │       ├── keyframe_150.webp
+  │       ├── keyframe_300.webp
+  │       └── ...
+  └── video2/
+      └── keyframes/...
+```
+
+---
+
+## 4. Milvus Indexing
+
+**Script:** `upload_database.py`
+
+This script takes the extracted keyframes (`.webp`) and inserts their embeddings into a Milvus collection for fast vector similarity search.
+
+### Features
+
+* Multi-GPU or CPU-only encoding
+* Batch-wise insertion with configurable flush interval
+* Automatic collection creation with HNSW index
+* Option to rebuild index after ingestion for faster queries
+
+### Usage
+
+```bash
+python upload_database.py \
+  --root ./output-keyframes \
+  --collection-name AIC25_fullbatch1 \
+  --recreate \
+  --build-index
+```
+
+### Key Arguments
+
+* `--root`: Root folder containing keyframes.
+* `--collection-name`: Milvus collection name.
+* `--recreate`: Drop and recreate the collection if it exists.
+* `--build-index`: Build HNSW index after insertions.
+* `--batch-size`: Number of keyframes per encoding batch (default: 16).
+* `--flush-interval`: Flush every N inserts (default: 2000).
+* `--workers`: `auto` = use all GPUs, `cpu` = single worker on CPU, or integer for #workers.
+
+---
 
 ### Common issues & fixes
 
